@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,height=device-height,maximum-scale=1.0,user-scalable=no">
+	<title>test velocity.js</title>
+	<style type="text/css">
+		div{
+			margin: auto;
+			width: 100px;
+			height: 100px;
+			background-color: blue;
+		}
+	</style>
+</head>
+<body>
+	<div id="div1"></div>
+	<div id="div2"></div>
+	<div id="div3"></div>
+	<button id="runout">点击消失</button>
+	<script src="http://lib.sinaapp.com/js/jquery/1.9.1/jquery-1.9.1.min.js"></script>
+	<script type="text/javascript" src="velocity.min.js"></script>
+	<script type="text/javascript" src="velocity.ui.min.js"></script>
+	<script type="text/javascript">
+		//////////////////////////////
+		//官网：http://velocityjs.org/ //
+		//////////////////////////////
+		(function ($) {
+			// $element.velocity({
+			//     /* 第一参数CSS属性 */
+			//     width: "500px",
+			//     property2: value2
+			// }, {
+			//     /* Velocity's default options */
+			//     duration: 400,
+			//     easing: "swing",
+			//     queue: "",
+			//     begin: undefined,
+			//     progress: undefined,
+			//     complete: undefined,
+			//     display: undefined,
+			//     visibility: undefined,
+			//     loop: false,
+			//     delay: false,
+			//     mobileHA: true
+			// });
+			
+			// 第一种方式
+			// $('#div1').velocity({
+			// 	width: '300px'
+			// }, {
+			// 	duration: 1000
+			// });
+			// $('#div2').velocity({
+			// 	width: '300px'
+			// }, {
+			// 	duration: 500,
+			// 	delay: 1000
+			// });
+			// $('#div3').velocity({
+			// 	width: '300px'
+			// }, {
+			// 	duration: 100,
+			// 	delay: 1500
+			// });
+
+			// 第二种方式
+			// $('#div1').velocity({
+			// 	width: '300px'
+			// }, {
+			// 	duration: 1000,
+			// 	complete: function(){
+			// 		$('#div2').velocity({
+			// 			width: '300px'
+			// 		}, {
+			// 			duration: 500,
+			// 			complete: function(){
+			// 				$('#div3').velocity({
+			// 					width: '300px'
+			// 				}, {
+			// 					duration: 100,
+			// 				});
+			// 			}
+			// 		});
+			// 	}
+			// });
+
+			// 第三种方式：定义动画序列
+			// var seq = [
+			// 	{
+			// 		elements: $('#div1'),
+			// 		properties: {width: '300px'},
+			// 		options: {duration: 1000}
+			// 	},
+			// 	{
+			// 		elements: $('#div2'),
+			// 		properties: {width: '300px'},
+			// 		options: {duration: 500}
+			// 	},
+			// 	{
+			// 		elements: $('#div3'),
+			// 		properties: {width: '300px'},
+			// 		options: {duration: 100}
+			// 	}
+			// ];
+			// $.Velocity.RunSequence(seq);
+			
+			$('#div3').velocity({
+			    opacity: function() { return Math.random() }
+			}, { duration: 'slow', loop: true });
+
+			// Velocity预定义动画（官网API：Effects: Pre-Registered）
+			$('#div1').on('mouseover', function(){
+				$(this).velocity('callout.shake');
+			});
+
+			// 自定义动画（RegisterEffect和RegisterUI基本相同）
+			// $.Velocity.RegisterEffect(name, {
+			//     defaultDuration: duration,
+			//     calls: [
+			//         [ { property: value }, durationPercentage, { options } ],
+			//         [ { property: value }, durationPercentage, { options } ]
+			//     ],
+			//     reset: { property: value, property: value }
+			// });
+			$.Velocity.RegisterEffect('hxf.pulse', {
+				defaultDuration: 300,
+				calls: [
+					[{scaleX: 1.1, width: '*=2'}, 0.5],//前50% transform: scaleX(1.1);
+					[{scaleX: 1.0, width: '/=2'}, 0.5] //后50% transform: scaleX(1.0);
+				]
+			});
+			$('#div2').on('mouseover', function(){
+				$(this).velocity('hxf.pulse');
+			});
+
+			$.Velocity.RegisterEffect('hxf.runDounOut', {
+				defaultDuration: 1000,
+				calls: [
+					[ {opacity: [0, 1], translateY:[100, 0]} ]// opacity从1到0，translateY从0到100px
+				]
+			});
+			var outSeq = [
+				{
+					e: $('#div1'),
+					p: 'fadeOut',
+					o: {}
+				},
+				{
+					e: $('#div2'),
+					p: 'hxf.runDounOut',
+					o: {
+						sequenceQueue: false // 取消序列，则div1和div2一起作消失动画
+					}
+				},
+				{
+					e: $('#div3'),
+					p: 'hxf.runDounOut',
+					o: {
+						// sequenceQueue: false
+					}
+				}
+			];
+
+			$('#runout').on('click', function(){
+				$.Velocity.RunSequence(outSeq);
+			});
+
+		})(jQuery);
+	</script>
+</body>
+</html>
